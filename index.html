@@ -50,7 +50,6 @@
         updateBannerVisibility();
       }
 
-      // 从 ZIP 中提取文件并创建 Blob URL
       async function extractFromZip(zipUrl, fileName) {
         let response = await fetch(zipUrl);
         let blob = await response.blob();
@@ -62,13 +61,13 @@
       }
 
       async function startGame() {
-        let zipUrl = "unitywebGL.zip";
+        let zipUrl = "unityWebGL.zip";
 
         try {
-          let dataUrl = await extractFromZip(zipUrl, "Build/unitywebGL.data");
-          let frameworkUrl = await extractFromZip(zipUrl, "Build/unitywebGL.framework.js");
-          let codeUrl = await extractFromZip(zipUrl, "Build/unitywebGL.wasm");
-          let loaderUrl = await extractFromZip(zipUrl, "Build/unitywebGL.loader.js");
+          let dataUrl = await extractFromZip(zipUrl, "unitywebGL.data");
+          let frameworkUrl = await extractFromZip(zipUrl, "unitywebGL.framework.js");
+          let codeUrl = await extractFromZip(zipUrl, "unitywebGL.wasm");
+          let loaderUrl = await extractFromZip(zipUrl, "unitywebGL.loader.js");
 
           var config = {
             dataUrl: dataUrl,
