@@ -57,23 +57,30 @@
         let file = zip.file(fileName);
         if (!file) throw new Error("ZIP中找不到文件: " + fileName);
         let fileBlob = await file.async("blob");
+        // 修复wasm的MIME类型
         let wasmBlob = new Blob([fileBlob], { type: 'application/wasm' });
         return URL.createObjectURL(wasmBlob);
+      }
+
+      // 新增：用no-cors模式获取.data文件，绕过跨域
+      async function getDataUrl(url) {
+        const response = await fetch(url, { mode: 'no-cors' });
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
       }
 
       async function startGame() {
         let zipUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.zip";
 
         try {
-          // ✅ 保留你原来的 .data 路径，不换代理，不换平台
-          let dataUrl = "https://github.com/Llf618/sturdy-octo-sniffle/releases/download/v1.0/UnityWeb.data";
+          // 换回你原本的Release链接，去掉失效的ghproxy
+          const dataUrl = await getDataUrl("https://github.com/Llf618/sturdy-octo-sniffle/releases/download/v1.0/UnityWeb.data");
+          const codeUrl = await extractFromZip(zipUrl, "unityWebGL.wasm");
 
-          let codeUrl = await extractFromZip(zipUrl, "unityWebGL.wasm");
+          const frameworkUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.framework.js";
+          const loaderUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.loader.js";
 
-          let frameworkUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.framework.js";
-          let loaderUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.loader.js";
-
-          var config = {
+          const config = {
             dataUrl: dataUrl,
             frameworkUrl: frameworkUrl,
             codeUrl: codeUrl,
@@ -85,7 +92,7 @@
           };
 
           if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-            var meta = document.createElement('meta');
+            const meta = document.createElement('meta');
             meta.name = 'viewport';
             meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
             document.getElementsByTagName('head')[0].appendChild(meta);
@@ -98,7 +105,7 @@
 
           loadingBar.style.display = "block";
 
-          var script = document.createElement("script");
+          const script = document.createElement("script");
           script.src = loaderUrl;
           script.onload = () => {
             createUnityInstance(canvas, config, (progress) => {
