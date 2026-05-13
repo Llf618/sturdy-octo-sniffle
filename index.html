@@ -64,15 +64,13 @@
         let zipUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.zip";
 
         try {
-          // .data 从 Release 加载，不走 ZIP
           let dataUrl = "https://github.com/Llf618/sturdy-octo-sniffle/releases/download/v1.0/UnityWeb.data";
+          
+          // 已和你ZIP内文件名完全一致
+          let codeUrl = await extractFromZip(zipUrl, "unityWebGL.wasm");
 
-          // .wasm 从 ZIP 中提取
-          let codeUrl = await extractFromZip(zipUrl, "unitywebGL.wasm");
-
-          // .framework.js 和 .loader.js 从仓库直接加载
-          let frameworkUrl = "https://llf618.github.io/sturdy-octo-sniffle/unitywebGL.framework.js";
-          let loaderUrl = "https://llf618.github.io/sturdy-octo-sniffle/unitywebGL.loader.js";
+          let frameworkUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.framework.js";
+          let loaderUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.loader.js";
 
           var config = {
             dataUrl: dataUrl,
