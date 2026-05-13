@@ -61,19 +61,25 @@
         return URL.createObjectURL(wasmBlob);
       }
 
+      // ✅ 新增：用 no-cors 模式获取 .data 文件，绕过跨域限制
+      async function getDataUrl(url) {
+        const response = await fetch(url, { mode: 'no-cors' });
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+      }
+
       async function startGame() {
         let zipUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.zip";
 
         try {
-          // ✅ 这里已经改成了和你文件完全匹配的名字！
-          let dataUrl = "https://github.com/Llf618/sturdy-octo-sniffle/releases/download/v1.0/unityWebGL.data";
-          
-          let codeUrl = await extractFromZip(zipUrl, "unityWebGL.wasm");
+          // 用 no-cors 模式加载你正确的 .data 文件
+          const dataUrl = await getDataUrl("https://github.com/Llf618/sturdy-octo-sniffle/releases/download/v1.0/unityWebGL.data");
+          const codeUrl = await extractFromZip(zipUrl, "unityWebGL.wasm");
 
-          let frameworkUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.framework.js";
-          let loaderUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.loader.js";
+          const frameworkUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.framework.js";
+          const loaderUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.loader.js";
 
-          var config = {
+          const config = {
             dataUrl: dataUrl,
             frameworkUrl: frameworkUrl,
             codeUrl: codeUrl,
@@ -85,7 +91,7 @@
           };
 
           if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-            var meta = document.createElement('meta');
+            const meta = document.createElement('meta');
             meta.name = 'viewport';
             meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
             document.getElementsByTagName('head')[0].appendChild(meta);
@@ -98,7 +104,7 @@
 
           loadingBar.style.display = "block";
 
-          var script = document.createElement("script");
+          const script = document.createElement("script");
           script.src = loaderUrl;
           script.onload = () => {
             createUnityInstance(canvas, config, (progress) => {
