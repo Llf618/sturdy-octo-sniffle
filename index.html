@@ -50,6 +50,9 @@
         updateBannerVisibility();
       }
 
+      // ======================
+      // 【修改 1】修复 wasm MIME 类型
+      // ======================
       async function extractFromZip(zipUrl, fileName) {
         let response = await fetch(zipUrl);
         let blob = await response.blob();
@@ -57,16 +60,22 @@
         let file = zip.file(fileName);
         if (!file) throw new Error("ZIP中找不到文件: " + fileName);
         let fileBlob = await file.async("blob");
-        return URL.createObjectURL(fileBlob);
+        
+        // 加上这一句，解决 wasm 加载错误
+        let wasmBlob = new Blob([fileBlob], { type: 'application/wasm' });
+        
+        return URL.createObjectURL(wasmBlob);
       }
 
       async function startGame() {
         let zipUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.zip";
 
         try {
-          let dataUrl = "https://github.com/Llf618/sturdy-octo-sniffle/releases/download/v1.0/UnityWeb.data";
-          
-          // 已和你ZIP内文件名完全一致
+          // ======================
+          // 【修改 2】修复 .data 跨域（使用 GitHub 加速链接，保留放 Release）
+          // ======================
+          let dataUrl = "https://ghproxy.net/https://github.com/Llf618/sturdy-octo-sniffle/releases/download/v1.0/UnityWeb.data";
+
           let codeUrl = await extractFromZip(zipUrl, "unityWebGL.wasm");
 
           let frameworkUrl = "https://llf618.github.io/sturdy-octo-sniffle/unityWebGL.framework.js";
